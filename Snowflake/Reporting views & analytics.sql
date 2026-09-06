@@ -1,0 +1,363 @@
+
+
+USE DATABASE ATTENDANCE_DB;
+USE SCHEMA DATA_MART;
+
+
+CREATE OR REPLACE VIEW VW_STUDENT_ATTENDANCE AS
+SELECT
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    S.DEPARTMENT,
+    S.SEMESTER,
+    COUNT(A.ATTENDANCE_ID) AS TOTAL_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Present') AS PRESENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') AS ABSENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Late') AS LATE_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late')) AS ATTENDED_CLASSES,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / NULLIF(COUNT(A.ATTENDANCE_ID), 0),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    S.DEPARTMENT,
+    S.SEMESTER;
+
+
+-- ============================================================
+-- 2. COURSE ATTENDANCE REPORTING VIEW
+-- ============================================================
+
+CREATE OR REPLACE VIEW VW_COURSE_ATTENDANCE AS
+SELECT
+    C.COURSE_ID,
+    C.COURSE_NAME,
+    C.DEPARTMENT,
+    C.COURSE_CATEGORY,
+    C.INSTRUCTOR_NAME,
+    COUNT(A.ATTENDANCE_ID) AS TOTAL_ATTENDANCE_RECORDS,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Present') AS PRESENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') AS ABSENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Late') AS LATE_CLASSES,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / NULLIF(COUNT(A.ATTENDANCE_ID), 0),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_COURSE C
+    ON A.COURSE_KEY = C.COURSE_KEY
+GROUP BY
+    C.COURSE_ID,
+    C.COURSE_NAME,
+    C.DEPARTMENT,
+    C.COURSE_CATEGORY,
+    C.INSTRUCTOR_NAME;
+
+
+-- ============================================================
+-- 3. DEPARTMENT ATTENDANCE REPORTING VIEW
+-- ============================================================
+
+CREATE OR REPLACE VIEW VW_DEPARTMENT_ATTENDANCE AS
+SELECT
+    S.DEPARTMENT,
+    COUNT(DISTINCT S.STUDENT_ID) AS TOTAL_STUDENTS,
+    COUNT(A.ATTENDANCE_ID) AS TOTAL_ATTENDANCE_RECORDS,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Present') AS PRESENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') AS ABSENT_CLASSES,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Late') AS LATE_CLASSES,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / NULLIF(COUNT(A.ATTENDANCE_ID), 0),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY S.DEPARTMENT;
+
+
+-- ============================================================
+-- 4. DAILY ATTENDANCE REPORTING VIEW
+-- ============================================================
+
+CREATE OR REPLACE VIEW VW_DAILY_ATTENDANCE AS
+SELECT
+    D.FULL_DATE,
+    D.DAY_NAME,
+    D.DAY,
+    D.MONTH,
+    D.MONTH_NAME,
+    D.YEAR,
+    COUNT(A.ATTENDANCE_ID) AS TOTAL_RECORDS,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Present') AS PRESENT_COUNT,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') AS ABSENT_COUNT,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Late') AS LATE_COUNT,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / NULLIF(COUNT(A.ATTENDANCE_ID), 0),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_DATE D
+    ON A.DATE_KEY = D.DATE_KEY
+GROUP BY
+    D.FULL_DATE,
+    D.DAY_NAME,
+    D.DAY,
+    D.MONTH,
+    D.MONTH_NAME,
+    D.YEAR;
+
+
+-- ============================================================
+-- 5. MONTHLY ATTENDANCE REPORTING VIEW
+-- ============================================================
+
+CREATE OR REPLACE VIEW VW_MONTHLY_ATTENDANCE AS
+SELECT
+    D.YEAR,
+    D.MONTH,
+    D.MONTH_NAME,
+    D.YEAR_MONTH,
+    COUNT(A.ATTENDANCE_ID) AS TOTAL_RECORDS,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Present') AS PRESENT_COUNT,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') AS ABSENT_COUNT,
+    COUNT_IF(A.ATTENDANCE_STATUS = 'Late') AS LATE_COUNT,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / NULLIF(COUNT(A.ATTENDANCE_ID), 0),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_DATE D
+    ON A.DATE_KEY = D.DATE_KEY
+GROUP BY
+    D.YEAR,
+    D.MONTH,
+    D.MONTH_NAME,
+    D.YEAR_MONTH
+ORDER BY
+    D.YEAR,
+    D.MONTH;
+
+
+-- ============================================================
+-- 6. KPI QUERIES
+-- ============================================================
+
+-- Total Students
+SELECT COUNT(*) AS TOTAL_STUDENTS
+FROM DIM_STUDENT;
+
+-- Total Courses
+SELECT COUNT(*) AS TOTAL_COURSES
+FROM DIM_COURSE;
+
+-- Total Attendance Records
+SELECT COUNT(*) AS TOTAL_ATTENDANCE_RECORDS
+FROM ATTENDANCE;
+
+-- Present Percentage
+SELECT
+    ROUND(
+        100.0 * COUNT_IF(ATTENDANCE_STATUS = 'Present') / COUNT(*),
+        2
+    ) AS PRESENT_PERCENT
+FROM ATTENDANCE;
+
+-- Absent Percentage
+SELECT
+    ROUND(
+        100.0 * COUNT_IF(ATTENDANCE_STATUS = 'Absent') / COUNT(*),
+        2
+    ) AS ABSENT_PERCENT
+FROM ATTENDANCE;
+
+-- Late Attendance Percentage
+SELECT
+    ROUND(
+        100.0 * COUNT_IF(ATTENDANCE_STATUS = 'Late') / COUNT(*),
+        2
+    ) AS LATE_PERCENT
+FROM ATTENDANCE;
+
+-- Average Attendance Percentage
+SELECT
+    ROUND(AVG(ATTENDANCE_PERCENTAGE), 2) AS AVERAGE_ATTENDANCE_PERCENT
+FROM ATTENDANCE;
+
+
+-- ============================================================
+-- 7. STUDENT PERFORMANCE QUERIES
+-- ============================================================
+
+-- Students Below 75% Attendance
+SELECT
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY
+    S.STUDENT_ID,
+    S.STUDENT_NAME
+HAVING
+    100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+    / COUNT(A.ATTENDANCE_ID) < 75
+ORDER BY ATTENDANCE_PERCENTAGE;
+
+
+-- Students with Perfect Attendance
+SELECT
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY
+    S.STUDENT_ID,
+    S.STUDENT_NAME
+HAVING COUNT_IF(A.ATTENDANCE_STATUS = 'Absent') = 0
+ORDER BY S.STUDENT_ID;
+
+
+-- Top 10 Students
+SELECT
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY
+    S.STUDENT_ID,
+    S.STUDENT_NAME
+ORDER BY ATTENDANCE_PERCENTAGE DESC
+LIMIT 10;
+
+
+-- Bottom 10 Students
+SELECT
+    S.STUDENT_ID,
+    S.STUDENT_NAME,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY
+    S.STUDENT_ID,
+    S.STUDENT_NAME
+ORDER BY ATTENDANCE_PERCENTAGE ASC
+LIMIT 10;
+
+
+-- ============================================================
+-- 8. TIME-BASED ANALYSIS
+-- ============================================================
+
+-- Daily Attendance Trend
+SELECT
+    D.FULL_DATE,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_DATE D
+    ON A.DATE_KEY = D.DATE_KEY
+GROUP BY D.FULL_DATE
+ORDER BY D.FULL_DATE;
+
+
+-- Monthly Attendance Trend
+SELECT
+    D.YEAR,
+    D.MONTH,
+    D.MONTH_NAME,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_DATE D
+    ON A.DATE_KEY = D.DATE_KEY
+GROUP BY
+    D.YEAR,
+    D.MONTH,
+    D.MONTH_NAME
+ORDER BY
+    D.YEAR,
+    D.MONTH;
+
+
+-- ============================================================
+-- 9. DEPARTMENT & SEMESTER ANALYSIS
+-- ============================================================
+
+-- Department-wise Attendance
+SELECT
+    S.DEPARTMENT,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY S.DEPARTMENT
+ORDER BY ATTENDANCE_PERCENTAGE DESC;
+
+
+-- Semester-wise Attendance
+SELECT
+    S.SEMESTER,
+    ROUND(
+        100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
+        / COUNT(A.ATTENDANCE_ID),
+        2
+    ) AS ATTENDANCE_PERCENTAGE
+FROM ATTENDANCE A
+JOIN DIM_STUDENT S
+    ON A.STUDENT_KEY = S.STUDENT_KEY
+GROUP BY S.SEMESTER
+ORDER BY S.SEMESTER;
+
+
+-- ============================================================
+-- 10. REPORTING OBJECT VALIDATION
+-- ============================================================
+
+SHOW VIEWS IN SCHEMA ATTENDANCE_DB.DATA_MART;
+
+-- ============================================================
+-- END OF REPORTING & ANALYTICS
+-- ============================================================

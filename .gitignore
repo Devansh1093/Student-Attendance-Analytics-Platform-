@@ -1,0 +1,36 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Azure credentials
+azure/.env
+azure/config.json
+*credentials*
+*secret*
+*.key
+*.pem
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generator runtime state
+generator_state.json
+
+# Generated attendance files
+Attendance_20*.csv
+# Test / temporary data
+*_Test.csv
+*_Delta.csv
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

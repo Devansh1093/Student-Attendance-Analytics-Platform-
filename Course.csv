@@ -1,0 +1,7 @@
+"COURSE_ID","COURSE_NAME","DEPARTMENT","COURSE_CATEGORY","INSTRUCTOR_NAME","CREDITS","COURSE_DURATION","START_DATE","END_DATE","BATCH","ACAD_YEAR","STATUS","CREATION_DATE"
+101,"Database Management","Computer Science","Core","Anil Sharma",4,"4 Months","2026-07-27T00:00:00Z","2026-12-01T00:00:00Z",2026,"2026-27","Active","2026-07-26T12:23:48Z"
+102,"Software Engineering","Computer Science","Core","Priya Verma",4,"4 Months","2026-07-27T00:00:00Z","2026-12-01T00:00:00Z",2026,"2026-27","Active","2026-07-26T12:23:55Z"
+103,"Data Analytics","Information Technology","Elective","Rahul Mehta",3,"4 Months","2026-07-27T00:00:00Z","2026-12-01T00:00:00Z",2026,"2026-27","Active","2026-07-26T12:24:02Z"
+104,"Mathematics","Mathematics","Core","Sanjay Kumar",3,"4 Months","2026-07-27T00:00:00Z","2026-12-01T00:00:00Z",2026,"2026-27","Active","2026-07-26T12:24:11Z"
+105,"Operating Systems","Computer Science","Core","Amit Singh",3,"4 Months","2026-07-27T00:00:00Z","2026-12-01T00:00:00Z",2026,"2026-27","Active","2026-07-26T12:24:17Z"
+106,"Sustainability","Environmental Science","Elective","Neha Kapoor",3,"4 Months","2026-07-27T00:00:00Z","2026-11-30T00:00:00Z",2026,"2026-27","Inactive","2026-07-26T12:24:24Z"
