@@ -2,7 +2,7 @@
 
 USE DATABASE ATTENDANCE_DB;
 USE SCHEMA DATA_MART;
-
+--  5 Views = Student attedance, course attendance,department attendance, daily attendance,monthly attendance
 
 CREATE OR REPLACE VIEW VW_STUDENT_ATTENDANCE AS
 SELECT
@@ -30,9 +30,7 @@ GROUP BY
     S.SEMESTER;
 
 
--- ============================================================
--- 2. COURSE ATTENDANCE REPORTING VIEW
--- ============================================================
+
 
 CREATE OR REPLACE VIEW VW_COURSE_ATTENDANCE AS
 SELECT
@@ -61,9 +59,7 @@ GROUP BY
     C.INSTRUCTOR_NAME;
 
 
--- ============================================================
--- 3. DEPARTMENT ATTENDANCE REPORTING VIEW
--- ============================================================
+
 
 CREATE OR REPLACE VIEW VW_DEPARTMENT_ATTENDANCE AS
 SELECT
@@ -84,9 +80,6 @@ JOIN DIM_STUDENT S
 GROUP BY S.DEPARTMENT;
 
 
--- ============================================================
--- 4. DAILY ATTENDANCE REPORTING VIEW
--- ============================================================
 
 CREATE OR REPLACE VIEW VW_DAILY_ATTENDANCE AS
 SELECT
@@ -117,9 +110,7 @@ GROUP BY
     D.YEAR;
 
 
--- ============================================================
--- 5. MONTHLY ATTENDANCE REPORTING VIEW
--- ============================================================
+
 
 CREATE OR REPLACE VIEW VW_MONTHLY_ATTENDANCE AS
 SELECT
@@ -149,11 +140,7 @@ ORDER BY
     D.MONTH;
 
 
--- ============================================================
--- 6. KPI QUERIES
--- ============================================================
-
--- Total Students
+ -- KPI queries
 SELECT COUNT(*) AS TOTAL_STUDENTS
 FROM DIM_STUDENT;
 
@@ -195,9 +182,7 @@ SELECT
 FROM ATTENDANCE;
 
 
--- ============================================================
--- 7. STUDENT PERFORMANCE QUERIES
--- ============================================================
+-- Student performance queries
 
 -- Students Below 75% Attendance
 SELECT
@@ -277,9 +262,7 @@ ORDER BY ATTENDANCE_PERCENTAGE ASC
 LIMIT 10;
 
 
--- ============================================================
--- 8. TIME-BASED ANALYSIS
--- ============================================================
+
 
 -- Daily Attendance Trend
 SELECT
@@ -318,10 +301,6 @@ ORDER BY
     D.MONTH;
 
 
--- ============================================================
--- 9. DEPARTMENT & SEMESTER ANALYSIS
--- ============================================================
-
 -- Department-wise Attendance
 SELECT
     S.DEPARTMENT,
@@ -344,7 +323,7 @@ SELECT
         100.0 * COUNT_IF(A.ATTENDANCE_STATUS IN ('Present', 'Late'))
         / COUNT(A.ATTENDANCE_ID),
         2
-    ) AS ATTENDANCE_PERCENTAGE
+    ) AS Attendance_percentage
 FROM ATTENDANCE A
 JOIN DIM_STUDENT S
     ON A.STUDENT_KEY = S.STUDENT_KEY
@@ -352,12 +331,5 @@ GROUP BY S.SEMESTER
 ORDER BY S.SEMESTER;
 
 
--- ============================================================
--- 10. REPORTING OBJECT VALIDATION
--- ============================================================
 
-SHOW VIEWS IN SCHEMA ATTENDANCE_DB.DATA_MART;
-
--- ============================================================
--- END OF REPORTING & ANALYTICS
--- ============================================================
+SHOW views in schema ATTENDANCE_DB.DATA_MART;
