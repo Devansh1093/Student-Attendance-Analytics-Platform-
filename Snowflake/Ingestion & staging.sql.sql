@@ -1,6 +1,3 @@
--- STUDENT ATTENDANCE ANALYTICS PLATFORM
--- SNOWFLAKE PLATFORM SETUP & DATA INGESTION
--- GitHub-safe version: no Azure SAS tokens, passwords, or secrets.
 
 CREATE WAREHOUSE IF NOT EXISTS ATTENDANCE_WH
     WITH WAREHOUSE_SIZE = 'XSMALL'
@@ -72,7 +69,8 @@ CREATE OR REPLACE FILE FORMAT ATTENDANCE_CSV_FORMAT
     SKIP_HEADER = 1
     FIELD_OPTIONALLY_ENCLOSED_BY = '"';
 
--- AZURE STORAGE INTEGRATION
+-- Azure storage integration
+
 -- Configure these values for your own Azure environment.
 -- Never commit real tenant secrets, SAS tokens, connection strings,
 -- or account keys to GitHub.
@@ -86,7 +84,7 @@ CREATE OR REPLACE FILE FORMAT ATTENDANCE_CSV_FORMAT
 --         'azure://<STORAGE_ACCOUNT>.blob.core.windows.net/<CONTAINER>/'
 --     );
 
--- AZURE STAGES
+-- Azure stages
 -- Example configuration using the storage integration:
 
 -- CREATE OR REPLACE STAGE AZURE_STUDENT_STAGE
@@ -112,8 +110,6 @@ CREATE OR REPLACE FILE FORMAT ATTENDANCE_CSV_FORMAT
 -- ON_ERROR = 'CONTINUE';
 
 -- SNOWPIPE AUTO-INGEST
--- Azure notification integrations require environment-specific
--- queue URLs and tenant configuration.
 
 -- CREATE OR REPLACE NOTIFICATION INTEGRATION AZURE_STUDENT_NOTIFICATION
 --     TYPE = QUEUE
@@ -149,7 +145,9 @@ CREATE OR REPLACE FILE FORMAT ATTENDANCE_CSV_FORMAT
 --     PATTERN = '.*Attendance.*[.]csv'
 --     ON_ERROR = 'CONTINUE';
 
--- MONITORING
+
+
+-- Checking
 
 SELECT COUNT(*) AS STG_STUDENT_COUNT FROM STG_STUDENT;
 SELECT COUNT(*) AS STG_COURSE_COUNT FROM STG_COURSE;
