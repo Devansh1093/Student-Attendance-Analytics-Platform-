@@ -26,7 +26,7 @@ STATE_FILE = Path("generator_state.json")
 
 START_DATE = date(2026, 7, 27)
 
-# Number of seconds between simulated class days.
+
 INTERVAL_SECONDS = 15
 AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 AZURE_CONTAINER_NAME = "attendance-data"
@@ -155,7 +155,6 @@ def make_times(status, class_date):
     if status == "Absent":
         return "", ""
 
-    # Class starts  at 09:00
     if status == "Late":
         minute = random.randint(8, 30)
     else:
@@ -181,7 +180,7 @@ def make_times(status, class_date):
 def cumulative_percentage(student_state, status):
     student_state["classes"] += 1
 
-    # Late counts as attended
+    
     if status in ("Present", "Late"):
         student_state["attended"] += 1
 
@@ -197,7 +196,7 @@ def generate_one_day(state):
     for student_id, info in STUDENTS.items():
         profile = info["profile"]
 
-        # 1005 stops attending after the first week
+        
         if profile == "stops_after_week" and class_date > START_DATE + timedelta(days=6):
             continue
 
