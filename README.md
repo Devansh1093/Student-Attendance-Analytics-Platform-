@@ -3,7 +3,7 @@
 ## Project Overview 
 
 The Student Attendance Analytics Platform simulates a real-world attendance management and analytics system.
-Attendance data is generated using a Python application and uploaded to Azure Blob Storage. Snowflake automatically ingests incoming attendance files using Snowpipe. Snowflake Streams, Tasks, and Stored Procedures then perform incremental processing, validation, transformation, and loading into a dimensional Attendance Data Mart.
+Attendance data is generated using a Python application and uploaded to Azure Blob Storage. Snowflake automatically ingests incoming attendance files using Snowpipe. Snowflake Streams, Tasks, and Stored Procedures then perform incremental processing, validation, transformation, and loading into a dimensional  Data Mart.
 The processed data is connected to Power BI to provide interactive dashboards for monitoring attendance performance across students, courses, and departments.
 
 ## Architecture
