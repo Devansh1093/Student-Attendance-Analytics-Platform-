@@ -7,7 +7,7 @@ Attendance data is generated using a Python application and uploaded to Azure Bl
 The processed data is connected to Power BI to provide interactive dashboards for monitoring attendance performance across students, courses, and departments.
 
 ## Architecture
- ![Alt text](attendance_pipeline.png)
+ ![Alt text](Arch.png)
 
 
 
